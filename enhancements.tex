@@ -42,7 +42,7 @@ In our proposed approach, we need to reindex the perceptron tables (explained in
 section XX\%) for training when the feedback from the prefetch is available.
 To do that, we added two 1024-entry filters which would hold the data required to index
 these tables. Depending on the decision of the perceptron (prefetch vs reject), the
-data is stored in the respective tables.
+data is stored in the respective filters.
 
 \noindent \textbf{Exporting data between SPP and Perceptron:}
 Perceptron learning uses the metadata associated with a prefetch suggestion as the
@@ -99,7 +99,7 @@ in the paper Perceptron-based Prefetch Filtering.}
 For prefetch friendly applications, an aggressive lookahead prefetcher can go really
 deep down the speculation path. This takes up valuable resources in the system's Prefetch 
 Queue (PQ) hence blocking any prefetch attempts from subsequent pages, leading to a timing
-disparity bewteen pages interleaved across demand accesses. To avoid that, our prefetcher 
-maintains a count of distinct pages being accessed in last-8 demand accesses and divides the
+disparity bewteen demand accesses interleaved across pages. To avoid that, our prefetcher 
+maintains a count of distinct pages being accessed in last eight demand accesses and divides the
 PQ resources across those many pages by limiting the maximum number of prefetches in a given 
 page.
