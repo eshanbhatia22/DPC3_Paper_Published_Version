@@ -22,11 +22,17 @@ Delta is the numerical difference between the block offset of the current
 and the previous memory access. This signature is used to index into the 
 Pattern Table. This process is illustrated in Figure~\ref{fig:spp_update}.
 
-\noindent \textbf{Pattern Table:} The Pattern Table, shown on the right
-side in Figure~\ref{fig:spp_update} is indexed by the signature
-generated from the Signature Table.  Pattern Table holds predicted
-delta patterns and their confidence estimates. Each entry indexed by
-the signature holds up to 4 unique delta predictions.
+\noindent \textbf{Pattern Table:} 
+The Pattern Table, shown on the right side in Figure~\ref{fig:spp_update} 
+is indexed by the signature generated from the Signature Table. Pattern 
+Table holds predicted delta patterns and their confidence estimates. Each 
+entry indexed by the signature holds up to 4 unique delta predictions.
+
+\noindent \textbf{Global History Register:} 
+The Global History Register tries to learn from the prefetch suggestions which
+got rejected as they crossed the page boundaries. By boostraping its learning
+from such prefetch suggestions, SPP learns about page transitions. This enables 
+SPP to have a quicker warm-up period for unseen pages. 
 
 \noindent \textbf{Lookahead Prefetching:} On each trigger, SPP goes
 down the program speculation path using its own prefetch suggestion.
@@ -40,7 +46,7 @@ characterized as its `depth'. While doing so, SPP also keeps
 compounding the confidence in each depth. Thus as depth increases,
 overall confidence keeps decreasing.
 
-\noindent \textbf{Confidence Tracking}: 
+\noindent \textbf{Confidence Tracking:} 
 SPP tries to score its prefetch suggestions, denoted by C\textsubscript{d}.
 The score is approximated as the ratio of the hits for a given delta per
 signature to the hits for that signature. In the lookahead mode, the path
