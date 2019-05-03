@@ -1,13 +1,17 @@
 \begin{abstract}
-In this paper, we evaluate an implementation of a multi-hierarchy cache
-prefetching system under the 3rd Data Prefetching Championship framework. Our
-approach is based on an Enhanced Signature Path Prefetching (ESPP) mechanism
-that predicts the demand access stream for a particular depth ahead of the
-current memory access.
+  In this paper, we evaluate an implementation of a multi-cache-level
+  prefetching system under the 3rd Data Prefetching Championship
+  framework. Our approach is based on enhancing a baseline prefetcher,
+  Signature Path Prefetching (SPP) with a new, perceptron-based scheme
+  of prefetch filtering.  The key idea here being that by
+  de-constraining/de-throttling the underlying prefetcher we can
+  achieve high coverage, while using the perceptron prefetch filter to
+  ensure high accuracy.
 
-Our evaluation on the memory intensive traces of SPEC2017 shows that
-this approach enhances the IPC of the system by XX\% over no prefetching
-for a single-core configuration and by XX\% for a four-core configuration.
-On the system, the winner of DPC-2 achieves the resultant speedup of XX\%
-and XX\% in single-core and four-core systems respectively.
+  Our evaluation on the memory intensive traces of SPEC2017 shows that
+  this approach enhances the IPC of the system by XX\% over no
+  prefetching for a single-core configuration and by XX\% for a
+  four-core configuration.  On the system, the winner of DPC-2
+  achieves the resultant speedup of XX\% and XX\% in single-core and
+  four-core systems respectively.
 \end{abstract}
