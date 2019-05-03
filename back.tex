@@ -1,20 +1,19 @@
 \section{Background}
 \label{Background}
-In this section we discuss existing approaches that have been 
-used in our submission, namely: Signature Path Prefetcher and Perceptron 
-based on-line learning.
+In this section we discuss existing approaches that have been used in our
+submission, namely: Signature Path Prefetcher and Perceptron-based on-line
+learning.
 
 \subsection{Underlying prefetcher}
 \label{sec:Background-SPP}
-The original Signature Path Prefetcher~\cite{SPP} was proposed by Kim 
-{\em et. al.} SPP is a confidence-based lookahead prefetcher. 
-It creates a signature associated with a page address by compressing 
-the history of accesses. By correlating the signature with future 
-likely delta patterns, SPP learns both simple and complicated 
-memory access patterns quickly.
+The original Signature Path Prefetcher~\cite{SPP} was proposed by Kim {\em et.
+al.} SPP is a confidence-based lookahead prefetcher.  It creates a signature
+associated with a page address by compressing the history of accesses. By
+correlating the signature with future likely delta patterns, SPP learns both
+simple and complex memory access patterns quickly.
 
 \noindent \textbf{Signature Table:} 
-The Signature Table is indexed using the page number and captures the memory 
+The Signature Table is indexed using the page number and captures memory 
 access patterns within a page boundary. It does so by storing the last few
 memory accesses in the form of a compressed 12-bit signature, given as:
 $$New Signature = (\,Old Signature << 3 bits\,) \;\;XOR\;\; (\,Delta\,)$$ 
@@ -29,10 +28,13 @@ Table holds predicted delta patterns and their confidence estimates. Each
 entry is indexed by the signature and holds up to 4 unique delta predictions.
 
 \noindent \textbf{Global History Register:} 
-The Global History Register tries to learn from the prefetch suggestions which
-got rejected as they crossed the page boundaries. By boostraping its learning
-from such prefetch suggestions, SPP learns about page transitions. This enables 
-SPP to have a quicker warm-up period for unseen pages. 
+The Global History Register tries to learn from the prefetch suggestions that
+were rejected as they crossed page boundaries. By bootstrapping its learning
+from such prefetch suggestions, SPP learns about page transitions, enabling
+SPP to have a quicker warm-up period for unseen pages.
+
+% djimenez: below, "goes down the program speculation path" sounds like branch prediction.
+% can we say it in a less ambiguous way?
 
 \noindent \textbf{Lookahead Prefetching:} On each trigger, SPP goes
 down the program speculation path using its own prefetch suggestion.
@@ -42,12 +44,12 @@ Figure~\ref{fig:spp_structure}, it repeats the cycle of accessing
 Pattern Table and updating the signature based on highest confidence
 prefetch from the last iteration. The iteration counter on which SPP
 manages to predict prefetch entries in the lookahead manner is
-characterized as its `depth'. While doing so, SPP also keeps
+characterized as its `depth'. While doing so, SPP also continues
 compounding the confidence in each depth such that as depth increases,
 overall confidence decreases.
 
 \noindent \textbf{Confidence Tracking:} 
-SPP tries to score its prefetch suggestions, denoted by C\textsubscript{d}.
+SPP scores its prefetch suggestions, denoted by C\textsubscript{d}.
 The score is approximated as the ratio of the hits for a given delta per
 signature to the hits for that signature. In the lookahead mode, the path
 confidence P\textsubscript{d} is given as: $$P\textsubscript{d} \;=\; \alpha  
@@ -87,7 +89,7 @@ weights are read out from the tables and summed. If the sum exceeds
 a certain threshold, a positive prediction is made, {\em e.g.} ``predict
 branch taken'' or ``allow the prefetch.'' Otherwise, a negative
 prediction is made. Once the ground truth is known, the weights
-corredponding to the prediction are incremented if the outcome was
+corresponding to the prediction are incremented if the outcome was
 positive, or decremented if it was negative. This update only occurs
 if the prediction was incorrect or if the magnitude of the sum failed
 to exceed a threshold.  Beyond branch prediction, perceptron learning

@@ -32,23 +32,23 @@ To modify the SPP design to suit our scheme, the following changes
 were made:
 
 \noindent \textbf{Adjusting Aggressiveness Level:}
-This was done by tuning down the internal throttling mechanism to 
-extreme values to allow all the prefetches to pass through. As a 
-consequence, the internal confidence mechanism is no longer used
-to make prefetch or fill-level decisions.
+The aggressiveness level was adjusted by tuning down the internal throttling
+mechanism to extreme values to allow all the prefetches to pass through. Thus,
+the internal confidence mechanism is no longer used to make prefetch or
+fill-level decisions.
 
 \noindent \textbf{Adding Prefetch and Reject Filters:}
 In our proposed approach, we need to reindex the perceptron tables (explained in
 section XX\%) for training when the feedback from the prefetch is available.
-To do that, we added two 1024-entry filters which holds the data required to index
+To do that, we added two 1024-entry filters that hold the data required to index
 these tables. Depending on the decision of the perceptron (prefetch vs reject), the
 data is stored in the respective filters.
 
 \noindent \textbf{Exporting data between SPP and Perceptron:}
-Perceptron learning uses the metadata associated with a prefetch suggestion as the
-perceptron 'features'. Some of the features we developed use information derived 
-directly from program execution. Beyond that, SPP also conveys useful 
-information like lookahead depth, signature, and the confidence counter to the 
+Perceptron learning uses the metadata associated with a prefetch suggestion as
+the perceptron features. Some of the features we developed use information
+derived directly from program execution. Beyond that, SPP also conveys useful
+information like lookahead depth, signature, and the confidence counter to the
 perceptron filter.
 
 \subsection{The Perceptron Filter}
@@ -62,12 +62,12 @@ perceptron filter.
   \end{center}
 \end{figure}
 
-Figure~\ref{fig:PPF_Datapath} shows the microarchitecture of PPF, as
-well as the steps required to filter out not-useful prefetches. The
-perceptron filter is organized as a set of tables, where each entry in
-the tables holds a \textit{weight}. Each table is indexed using a 
-different number of bits from the corresponding feature. Each
-weight is a 5-bit saturating counter ranging from -16 to +15. 
+Figure~\ref{fig:PPF_Datapath} shows the microarchitecture of PPF, as well as
+the steps required to filter out not-useful prefetches. The perceptron filter
+is organized as a set of tables, where each entry in the tables holds a
+\textit{weight}. Each table is indexed using a different number of bits from
+the corresponding feature. Each weight is a 5-bit saturating counter ranging
+from -16 to +15.
 
 \noindent \textbf{Inferencing and Data Recording:}
 SPP is triggered on every demand access to the L2 Cache. The suggested 
@@ -78,28 +78,32 @@ Depending on the outcome of the perceptron, the feature values are recorded
 in one of the two filters introduced above.
 
 \noindent \textbf{Data Retrieval and Training:}
-PPF training is triggered whenever a prefetched block leads to a demand hit
-or a cache eviction. A valid entry in one of the tables means that the current
-memory access was a prefetch candidate in the past. The retreived feature values 
-are used to index the tables of weights. A uniform perceptron update rule
-is followed. If the prediction was correct (prefetched cache line leading to a 
-demand hit) and the perceptron sum lies within a predefined threshold, weights are 
-updated in the correct direction. If the prediction was incorrect (prefetched cache 
-line getting evicted without getting used or a prefetch reject leading to demand 
-access), the weights are updated in the opposite direction.
+PPF training is triggered whenever a prefetched block leads to a demand hit or
+a cache eviction. A valid entry in one of the tables means that the current
+memory access was a prefetch candidate in the past. The retrieved feature
+values are used to index the tables of weights. A uniform perceptron update
+rule is followed. If the prediction was correct, {\em i.e.} if a prefetched
+cache line led to a demand hit, and the perceptron sum lies within a
+predefined threshold, weights are updated in the correct direction. If the
+prediction was incorrect, {\em i.e.} a prefetched cache line was evicted
+without being used or a rejected prefetch led to a demand access, the weights
+are updated in the opposite direction.
 
 \textit {Note: More details about PPF working and implementation can be found 
-in the paper Perceptron-based Prefetch Filtering.}
-\textcolor{blue}{Is it okay to allude to the PPF paper? Will it be possible to cite it?}
+in the paper Perceptron-based Prefetch Filtering~\cite{EshanISCA2019}.}
+%\textcolor{blue}{Is it okay to allude to the PPF paper? Will it be possible to cite it?}
+% djimenez: yes we can cite it. we should get the final version out soon in case a reviewer
+% wants to read it. but regardless, we can cite it.
 
 \subsection{Other Optimizations}
 \label{Enhancements-Misc}
 
 \noindent \textbf{Resource Division Across Pages:}
 For prefetch friendly applications, an aggressive lookahead prefetcher can go
-deep down the speculation path. This takes up valuable resources in the system's Prefetch 
-Queue (PQ) hence blocking any prefetch attempts from subsequent pages, leading to a timing
-disparity bewteen demand accesses interleaved across pages. To avoid that, our prefetcher 
-maintains a count of distinct pages accessed in the last eight demand accesses and divides the
-PQ resources across those many pages by limiting the maximum number of prefetches in a given 
-page.
+deep down the speculation path. This process takes up valuable resources in the
+system's Prefetch Queue (PQ), blocking any prefetch attempts from
+subsequent pages and leading to a timing disparity between demand accesses
+interleaved across pages. To avoid that, our prefetcher maintains a count of
+distinct pages accessed in the last eight demand accesses and divides the PQ
+resources across those many pages by limiting the maximum number of prefetches
+in a given page.
