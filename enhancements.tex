@@ -9,12 +9,12 @@
   \end{center}
 \end{figure}
 
-It can be beneficial to allow a prefetcher like SPP to speculate as 
+It is beneficial to allow a prefetcher like SPP to speculate as 
 deeply as possible. Often, some useful prefetches are generated long 
 after the confidence of the prefetcher has fallen below the point at 
 which performance degrades due to the increase of inaccurate prefetches.  
-In order to allow deep speculation in the prefetcher, however, inaccurate
-prefetches must be filtered out.  We propose to leverage
+In order to allow deep speculation in the prefetcher, inaccurate
+prefetches must be filtered out. We propose to leverage
 perceptron-based learning as a mechanism to differentiate between
 potentially useful deeply speculated prefetches and likely not-useful
 ones. The Perceptron based Prefetch Filter (PPF) is placed between the
@@ -22,7 +22,7 @@ prefetcher and the prefetch insertion queue, as illustrated in
 Figure~\ref{fig:PPF_Hierarchy}, to prevent not-useful prefetches from
 polluting the higher levels of the memory hierarchy.
 Perceptron filter considers a number of features corresponding to a
-prefetch, such as speculation depth, page address and offset, and uses
+prefetch, such as the speculation depth, page address and offset, and uses
 this information as the inputs to our perceptron-based filter in order
 to predict the usefulness of a prefetch.  
 
@@ -32,22 +32,22 @@ To modify the SPP design to suit our scheme, the following changes
 were made:
 
 \noindent \textbf{Adjusting Aggressiveness Level:}
-This was done by tuning down the internal throttling mechanism to the 
+This was done by tuning down the internal throttling mechanism to 
 extreme values to allow all the prefetches to pass through. As a 
-consequence, the internal confidence mechanism was no longer used
+consequence, the internal confidence mechanism is no longer used
 to make prefetch or fill-level decisions.
 
 \noindent \textbf{Adding Prefetch and Reject Filters:}
 In our proposed approach, we need to reindex the perceptron tables (explained in
 section XX\%) for training when the feedback from the prefetch is available.
-To do that, we added two 1024-entry filters which would hold the data required to index
+To do that, we added two 1024-entry filters which holds the data required to index
 these tables. Depending on the decision of the perceptron (prefetch vs reject), the
 data is stored in the respective filters.
 
 \noindent \textbf{Exporting data between SPP and Perceptron:}
 Perceptron learning uses the metadata associated with a prefetch suggestion as the
 perceptron 'features'. Some of the features we developed use information derived 
-directly from program execution. Beyond that, SPP also conveys some useful 
+directly from program execution. Beyond that, SPP also conveys useful 
 information like lookahead depth, signature, and the confidence counter to the 
 perceptron filter.
 
@@ -96,10 +96,10 @@ in the paper Perceptron-based Prefetch Filtering.}
 \label{Enhancements-Misc}
 
 \noindent \textbf{Resource Division Across Pages:}
-For prefetch friendly applications, an aggressive lookahead prefetcher can go really
+For prefetch friendly applications, an aggressive lookahead prefetcher can go
 deep down the speculation path. This takes up valuable resources in the system's Prefetch 
 Queue (PQ) hence blocking any prefetch attempts from subsequent pages, leading to a timing
 disparity bewteen demand accesses interleaved across pages. To avoid that, our prefetcher 
-maintains a count of distinct pages being accessed in last eight demand accesses and divides the
+maintains a count of distinct pages accessed in the last eight demand accesses and divides the
 PQ resources across those many pages by limiting the maximum number of prefetches in a given 
 page.

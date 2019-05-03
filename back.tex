@@ -1,7 +1,7 @@
 \section{Background}
 \label{Background}
-In this section we discuss the existing approaches which have been 
-used in our submission,  namely: Signature Path Prefetcher and Perceptron 
+In this section we discuss existing approaches that have been 
+used in our submission, namely: Signature Path Prefetcher and Perceptron 
 based on-line learning.
 
 \subsection{Underlying prefetcher}
@@ -16,7 +16,7 @@ memory access patterns quickly.
 \noindent \textbf{Signature Table:} 
 The Signature Table is indexed using the page number and captures the memory 
 access patterns within a page boundary. It does so by storing the last few
-memory accesses in form of a compressed 12-bit signature, given as:
+memory accesses in the form of a compressed 12-bit signature, given as:
 $$New Signature = (\,Old Signature << 3 bits\,) \;\;XOR\;\; (\,Delta\,)$$ 
 Delta is the numerical difference between the block offset of the current 
 and the previous memory access. This signature is used to index into the 
@@ -24,9 +24,9 @@ Pattern Table. This process is illustrated in Figure~\ref{fig:spp_update}.
 
 \noindent \textbf{Pattern Table:} 
 The Pattern Table, shown on the right side in Figure~\ref{fig:spp_update} 
-is indexed by the signature generated from the Signature Table. Pattern 
+is indexed by the signature generated from the Signature Table. The Pattern 
 Table holds predicted delta patterns and their confidence estimates. Each 
-entry indexed by the signature holds up to 4 unique delta predictions.
+entry is indexed by the signature and holds up to 4 unique delta predictions.
 
 \noindent \textbf{Global History Register:} 
 The Global History Register tries to learn from the prefetch suggestions which
@@ -37,14 +37,14 @@ SPP to have a quicker warm-up period for unseen pages.
 \noindent \textbf{Lookahead Prefetching:} On each trigger, SPP goes
 down the program speculation path using its own prefetch suggestion.
 Using the current prefetch as a starting point, it re-accesses the Pattern
-Table to generate further prefetches.  As illustrated in
+Table to generate further prefetches. As illustrated in
 Figure~\ref{fig:spp_structure}, it repeats the cycle of accessing
 Pattern Table and updating the signature based on highest confidence
-prefetch from the last iteration.  The iteration counter on which SPP
+prefetch from the last iteration. The iteration counter on which SPP
 manages to predict prefetch entries in the lookahead manner is
 characterized as its `depth'. While doing so, SPP also keeps
-compounding the confidence in each depth. Thus as depth increases,
-overall confidence keeps decreasing.
+compounding the confidence in each depth such that as depth increases,
+overall confidence decreases.
 
 \noindent \textbf{Confidence Tracking:} 
 SPP tries to score its prefetch suggestions, denoted by C\textsubscript{d}.
@@ -77,14 +77,14 @@ not and to decide the fill level.
 
 \subsection{Perceptron Learning}
 \label{sec:Background-Perceptron}
-Perceptron learning for microarchitectural prediction was introduced
-for branch prediction~\cite{PerceptronPredictor}. Our predictor uses a
-version of microarchitectural perceptron prediction known as the
-``hashed perceptron'' organization~\cite{HashedPerceptron}. As an
-abstract idea, a hashed perceptron predictor hashes several different
+Perceptron learning for microarchitectural prediction was originally
+introduced for branch prediction~\cite{PerceptronPredictor}.
+Our predictor uses a version of a microarchitectural perceptron 
+prediction known as the ``hashed perceptron'' ~\cite{HashedPerceptron}. 
+The hashed perceptron predictor hashes several different
 features into values that index several distinct tables. Small integer
 weights are read out from the tables and summed. If the sum exceeds
-some threshold, a positive prediction is made, {\em e.g.} ``predict
+a certain threshold, a positive prediction is made, {\em e.g.} ``predict
 branch taken'' or ``allow the prefetch.'' Otherwise, a negative
 prediction is made. Once the ground truth is known, the weights
 corredponding to the prediction are incremented if the outcome was
@@ -93,4 +93,4 @@ if the prediction was incorrect or if the magnitude of the sum failed
 to exceed a threshold.  Beyond branch prediction, perceptron learning
 has been applied to last-level cache reuse
 prediction~\cite{Perc_Reuse,Multiperspective}. In this paper, we apply
-it for doing prefetch filtering.
+it to prefetch filtering.

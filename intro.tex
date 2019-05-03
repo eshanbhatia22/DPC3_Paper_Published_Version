@@ -1,30 +1,30 @@
 \section{Introduction}
 \label{Introduction}
 
-All prefetchers are designed around a fundamental trade-off between
+Prefetchers are designed around a fundamental trade-off between
 two important metrics: coverage and accuracy. Prefetcher coverage
 refers to the fraction of baseline cache misses that the prefetcher
-pulls into the cache prior to their reference. Prefetcher
-accuracy refers to the fraction of prefetched cache lines that end up
+pulls into the cache prior to their reference. Accuracy refers to 
+the fraction of prefetched cache lines that end up
 being used by the application. Our key idea in this paper is to 
 efficiently overcome this trade-off. This can give us a prefetching 
 mechanism which can learn complex pointer-chasing patterns (high coverage)
 and yet work good on constrained multi-core systems (high accuracy).
 
-Another challenging aspect of this championship is to have a coordinated 
+A challenging aspect of this championship is to have a coordinated 
 prefetch design approach. This involves controlling the inter-hierarchy 
 prefetch communication like prefetch misses from L1D appearing as accesses 
 to L2C. Another aspect to consider is placement of the incoming prefetches.
-Since now we have control over all the three cache hierarchies, a correct 
+Since we now have control over all the three cache hierarchies, a correct 
 prefetch suggestion placed in the wrong level, say L1D, can potentially 
 do more harm by wasting precious resources.
 
 In this paper, we follow a modular approach of explaining our basic prefetch
-block, SPP. We follow that by adding the enhancements we did to tackle the 
-trade-off explained above. Finally, we talk about fitting together all the 
+block, SPP. We then explain the enhancements we did to tackle the 
+trade-off explained above. Finally, we talk about fitting together the 
 pieces across the cache hierarchies to get the final prefetching mechanism 
 implemented.
 
-In a single core configuration running a mix of memory intensive SPEC CPU 
+In a single core configuration, running a mix of memory intensive SPEC CPU 
 2017 traces, \_\_\_ increases performance by XX\% compared to no prefetching. 
 In a four-core system, \_\_\_ saw an improvement of XX\% over the baseline.

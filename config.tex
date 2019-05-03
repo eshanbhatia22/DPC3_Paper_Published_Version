@@ -9,8 +9,19 @@ components across the cache hierarchies.
 
 \noindent \textbf{L1D Cache:}
 For the L1D Cache we are using a modified version of the next-line prefetcher [cite].
+
+The next line prefetcher is modified to have a small table containing the last 
+block accessed by a page. indexed by hashing the page number of an access.
+When an access occurs, the current block access and the previous access are compared.
+If the delta between accesses is +1, then a score table is indexed by the page number and
+its value increased. If the delta is not +1, it is decreased. When prefetching, the score table is 
+accessed and if the value is above a specified threshold, the next cache line after the access is 
+prefetched. This throttling allows for the prefetcher to be aware if the page is susceptible
+to multiple +1 deltas, usually consecutively. If the page does not benefit from next line prefetching,
+the prefetcher is turned off so that it does not risk polluting the L1D and wrongfully evicting
+data that is more beneficial to performance.
+
 \textcolor{blue}{
-- Gino to add details about the modification.
 - I might add page balancing idea here.
 }
 All the prefetch suggestions coming from the L1D prefetcher are being placed in L1D Cache.
