@@ -2,16 +2,15 @@
 \label{Config}
 
 This section describes our approach in putting together all the prefetching 
-components across the cache hierarchies.
+components across the cache hierarchies. 
 
 \subsection{Single-Core Configuration}
 \label{Config-Single}
 
-\noindent \textbf{L1D Cache:}
-For the L1D Cache we are using a modified version of the next-line prefetcher [cite].
-
-The next line prefetcher is modified to have a small table containing the last 
-block accessed by a page. indexed by hashing the page number of an access.
+\noindent \textbf{1st Level Data Cache:}
+For the L1D Cache we are using a modified version of the next-N-line prefetcher~\cite{nextn}.
+The basic next line prefetcher is modified to have a small table containing the last 
+block accessed by a page. The table is indexed by hashing the page number of an access.
 When an access occurs, the current block access and the previous access are compared.
 If the delta between accesses is +1, then a score table is indexed by the page number and
 its value increased. If the delta is not +1, it is decreased. When prefetching, the score table is 
@@ -21,34 +20,90 @@ to multiple +1 deltas, usually consecutively. If the page does not benefit from 
 the prefetcher is turned off so that it does not risk polluting the L1D and wrongfully evicting
 data that is more beneficial to performance.
 
-\textcolor{blue}{
-- I might add page balancing idea here.
-}
+The prefetcher continues to prefetche next N consecutive lines of that page. N is 
+obtained dynamically by sharing the Prefetch Queue (PQ) resources over consecutively
+active pages, as explained in sextion~\ref{Enhancements-Misc}
+
 All the prefetch suggestions coming from the L1D prefetcher are being placed in L1D Cache.
 
-\noindent \textbf{L2C Cache:}
-For the L2C, we are using the enhaced SPP+PPF approach described in the previous section.
-\textcolor{blue}{
-- Talk about ignoring previous level's prefetch misses or not
-}
-Prefetches originating from the L2C can be placed in L2C or LLC, depending on the confidence
-estimate given by the perceptron sum.
+\noindent \textbf{2nd Level Cache:}
+For the L2C, we are using the enhaced SPP+PPF approach described in the 
+section~\ref{Enhancements}. Prefetches originating from the L2C can be 
+placed in L2C or LLC, depending on the confidence estimate given by the 
+perceptron sum.
 
-\noindent \textbf{LLC Cache:}
 \textcolor{blue}{
-- Next Line vs Next Line Throttled
+- Talk about ignoring previous level's prefetches or not
 }
+
+\noindent \textbf{Last Level Cache:}
+The LLC prefetcher is the basic next-line prefetcher. The prefetcher gets triggered
+on demand accesses and the prefetch accesses originating from the L1 prefetcher. 
+
+\begin{table}[h]
+\begin{adjustwidth}{}{}
+    \centering
+    \begin{adjustbox}{width=0.8\columnwidth}
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+        \textbf{Structure} &
+        \textbf{Entry} &
+        \textbf{Components} &
+        \textbf{Total} \\
+    \hline
+                                            &  \multirow{5}{0.5cm}{256}    & Valid (1 bit)  &             \\
+                                             &      & Tag (16 bits)        &  \multirow{2}{0.9cm}{11008}           \\
+                            Signature Table  &   & Last Offset (6 bits) &  \multirow{2}{0.5cm}{bits}  \\  
+                                             &      & Signature (12 bits)  &             \\
+                                             &      & LRU (6 bits)         &             \\
+    \hline
+                                    &  \multirow{3}{0.5cm}{512}    & $C_{sig}$ (4bits)      &\multirow{2}{0.9cm}{24576}               \\
+                       Pattern Table         &   & $C_{delta}$ (4*4 bits) &  \multirow{2}{0.5cm}{bits}  \\
+                                             &      & Delta (4*7 bits)       &               \\
+    \hline
+        \multirow{4}{1.5cm}{Perceptron\newline}     & 4096*4    & \multirow{4}{0.8cm}{5 bits}  & \multirow{3}{1.1cm}{113280}             \\
+        \multirow{3}{1.2cm}{Weights}                & 2048*2    &           &  \multirow{3}{0.5cm}{bits}  \\
+                                                    & 1024*2    &           &               \\
+                                                    & 128*1     &           &              \\
+    \hline
+        Prefetch                & \multirow{2}{0.7cm}{1024}      & \multirow{2}{1cm}{85 bits}       & 87040 \\
+        Table\footnotemark[1]   &           &               & bits\\
+    \hline
+        Reject                & \multirow{2}{0.7cm}{1024}      & \multirow{2}{1cm}{84 bits}    & 86016 \\
+        Table\footnotemark[2] & & & bits\\
+    \hline
+        \multirow{4}{1.0cm}{Global\newline\newline}   & \multirow{4}{0.2cm}{8} & Signature (12 bits)  & \multirow{4}{1.1cm}{264 bits} \\
+        \multirow{3}{1.1cm}{History\newline}        &                        & Confidence (8 bits)  &                               \\
+        \multirow{2}{1.2cm}{Register}               &                        & Last Offset (6 bits) &                               \\
+                                                    &                        & Delta (7 bits)       &                               \\
+    \hline
+        Accuracy        & 1     & C$_{total}$       & 10 bits   \\
+        Counters        & 1     & C$_{useful}$      & 10 bits   \\
+    \hline
+        \multirow{3}{1.5cm}{Global PC\newline}      &       & $PC_1$ (12 bits)      &           \\
+        \multirow{2}{1.5cm}{~Trackers}              & 3     & $PC_2$ (12 bits)      & 36 bits   \\
+                                                    &       & $PC_3$ (12 bits)      &           \\
+    \hline
+        \multicolumn{4}{|c|}{\textbf{Total: 322,240 bits = 39.34 KB}}\\
+    \hline
+    \end{tabular}
+    \end{adjustbox}
+    \caption{Prefetcher Storage Cost}
+    \label{tab:PPF_overhead}
+\end{adjustwidth}
+\end{table}
 
 \subsection{Single-Core Complexity}
 \label{Config-Complex}
 
-Table XX\% shows a detailed analysis of the hardware overhead required to implement the three 
-prefetchers. It is well within the championship budget of 64KBs. In terms of L2C prefetcher's logical 
-complexity, SPP is a cascade of three tables, with the output of one indexing into the next.
-Constructing the signature only requires simple operations like shifting and XOR. PPF requires
-parallel indexing into nine different tables and adding nine 5-bit integers. Weight updates are
+Table~\ref{tab:PPF_overhead} \textcolor{blue}{(CURRENTLY INCOMPLETE)} shows a 
+detailed analysis of the hardware overhead required to implement the three 
+prefetchers. It is well within the championship budget of 64KBs. In terms of 
+L2C prefetcher's logical complexity, SPP is a cascade of three tables, with 
+the output of one indexing into the next. Constructing the signature only 
+requires simple operations like shifting and XOR. PPF requires parallel indexing 
+into nine different tables and adding nine 5-bit integers. Weight updates are
 done only in steps of +1 or -1.
-
 
 \subsection{Multi-Core Configuration}
 \label{Config-Multi}

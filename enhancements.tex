@@ -19,12 +19,12 @@ perceptron-based learning as a mechanism to differentiate between
 potentially useful deeply speculated prefetches and likely not-useful
 ones. The Perceptron based Prefetch Filter (PPF) is placed between the
 prefetcher and the prefetch insertion queue, as illustrated in
-Figure~\ref{fig:PPF_Hierarchy}, to prevent not-useful prefetches from
-polluting the higher levels of the memory hierarchy.
-Perceptron filter considers a number of features corresponding to a
-prefetch, such as the speculation depth, page address and offset, and uses
-this information as the inputs to our perceptron-based filter in order
-to predict the usefulness of a prefetch.  
+Figure~\ref{fig:PPF_Hierarchy} \textcolor{blue}{(NEED TO EXTEND)}, 
+to prevent not-useful prefetches from polluting the higher levels 
+of the memory hierarchy. Perceptron filter considers a number of 
+features corresponding to a prefetch, such as the speculation depth, 
+page address and offset, and uses this information as the inputs to our 
+perceptron-based filter in order to predict the usefulness of a prefetch.  
 
 \subsection{Changes made to SPP}
 \label{Enhancements-SPP}
