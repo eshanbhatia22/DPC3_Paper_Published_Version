@@ -1,31 +1,33 @@
 \section{Introduction}
 \label{Introduction}
 
-Prefetchers are designed around a fundamental trade-off between two important
-metrics: coverage and accuracy. Prefetcher coverage refers to the fraction of
-baseline cache misses that the prefetcher brings to the cache before their
-reference. Accuracy refers to the fraction of prefetched cache lines that are
-actually used by the application. The key idea in this paper is to efficiently
-balance this trade-off. Our approach yields a prefetching mechanism that can
-learn complex pointer-chasing patterns (high coverage) and yet work well on
+Prefetchers are designed around a fundamental trade-off between two
+important metrics: coverage and accuracy. Prefetcher coverage refers
+to the fraction of baseline cache misses that the prefetcher brings to
+the cache before their reference. Accuracy refers to the fraction of
+prefetched cache lines that are actually used by the application. The
+key idea in this paper is to efficiently balance this trade-off. Our
+approach yields a prefetching mechanism that can learn complex
+pointer-chasing patterns (high coverage) and yet work well on
 constrained multi-core systems (high accuracy).
 
-A challenging aspect of the championship is to have a coordinated 
-prefetch design approach. This involves controlling the inter-hierarchy 
-prefetch communication like prefetch misses from L1D appearing as accesses 
-to L2C. Another aspect to consider is placement of the incoming prefetches.
-Since we now have control over all the three cache hierarchies, a correct 
-prefetch suggestion placed in the wrong level, say L1D, can potentially 
-do more harm by wasting precious resources.
+A key challenge in prefetching for multi-level cache hierarchies lies
+in designing a coordinated prefetch design approach.  This involves
+controlling the inter-hierarchy prefetch communication like prefetch
+misses from L1D appearing as accesses to L2C.  Another aspect to
+consider is placement of the incoming prefetches.  A correct prefetch
+suggestion placed in the wrong level, say L1D, can potentially do more
+harm by wasting precious resources.
 
 In this paper, we follow a modular approach of explaining our basic
-prefetcher, SPP. We then explain the enhancements we did to address the
-trade-off explained above. Finally, we discuss fitting together the pieces
-across the cache hierarchies to get the final prefetching mechanism
-implemented.
+prefetcher, SPP, our perceptron prefetch filtering scheme PPF and the
+further enhancements included to address the trade-offs described
+above.  Finally, we discuss fitting together the pieces across the
+cache levels in the final prefetching mechanism implemented.
 
-In a single core configuration, running a mix of memory intensive SPEC CPU 
-2017 traces, \_\_\_ increases performance by XX\% compared to no prefetching. 
-In a four-core system, \_\_\_ saw an improvement of XX\% over the baseline.
+In a single core configuration, running a mix of memory intensive SPEC
+CPU 2017 traces, \_\_\_ increases performance by XX\% compared to no
+prefetching.  In a four-core system, \_\_\_ saw an improvement of XX\%
+over the baseline.
 
 % djimenez: can we just call it PPF? 
