@@ -1,48 +1,51 @@
 \section{Prefetcher Configurations}
 \label{Config}
 
-This section describes the approach in putting together all the prefetching 
-components across the cache hierarchies. 
+This section describes the approach in putting together all the
+prefetching components across the cache hierarchies.
 
 \subsection{Single-Core Configuration}
 \label{Config-Single}
 
-\noindent \textbf{1st Level Data Cache:}
-For the L1D Cache we are using a modified version of the next-N-line
-prefetcher~\cite{nextn}.  The basic next line prefetcher is modified to have a
-small table containing the last block accessed by a page. The table is indexed
-by hashing the page number of an access.  When an access occurs, the current
-block access and the previous access are compared.  If the delta between
-accesses is +1, then a score table is indexed by the page number and its value
-increased. If the delta is not +1, it is decreased. When prefetching, the
-score table is accessed and if the value is above a specified threshold, the
-next cache line after the access is prefetched. This throttling allows for the
-prefetcher to be aware if the page is susceptible to multiple +1 deltas,
-usually consecutively. If the page does not benefit from next line
-prefetching, the prefetcher is turned off so that it does not risk polluting
-the L1D and wrongfully evicting data that is more beneficial to performance.
+\noindent \textbf{1st Level Data Cache:} For the L1D Cache we are
+using a modified version of the next-N-line prefetcher~\cite{nextn}.
+The basic next line prefetcher is modified to have a small table
+containing the last block accessed by a page. The table is indexed by
+hashing the page number of an access.  When an access occurs, the
+current block access and the previous access are compared.  If the
+delta between accesses is +1, then a score table is indexed by the
+page number and its value increased. If the delta is not +1, it is
+decreased. When prefetching, the score table is accessed and if the
+value is above a specified threshold, the next cache line after the
+access is prefetched. This throttling allows for the prefetcher to be
+aware if the page is susceptible to multiple +1 deltas, usually
+consecutively. If the page does not benefit from next line
+prefetching, the prefetcher is turned off so that it does not risk
+polluting the L1D and wrongfully evicting data that is more beneficial
+to performance.
 
-The prefetcher continues to prefetch the next N consecutive lines of that page. N is 
-obtained dynamically by sharing the Prefetch Queue (PQ) resources over consecutively
-active pages, as explained in Section~\ref{Enhancements-Misc}
+The prefetcher continues to prefetch the next N consecutive lines of
+that page. N is obtained dynamically by sharing the Prefetch Queue
+(PQ) resources over consecutively active pages, as explained in
+Section~\ref{Enhancements-Misc}
 
-All the prefetch suggestions coming from the L1D prefetcher are placed in L1D Cache.
+All the prefetch suggestions coming from the L1D prefetcher are placed
+in the L1D Cache.
 
-\noindent \textbf{2nd Level Cache:}
-For the L2C, we are using the enhanced SPP+PPF approach described in the
-section~\ref{Enhancements}. Prefetches originating from the L2C can be placed
-in L2C or LLC, depending on the confidence estimate given by the perceptron
-sum.
+\noindent \textbf{2nd Level Cache:} For the L2C, we are using the
+enhanced SPP+PPF approach described in the
+section~\ref{Enhancements}. Prefetches originating from the L2C can be
+placed in L2C or LLC, depending on the confidence estimate given by
+the perceptron sum.
 
-\textcolor{blue}{
-- Talk about ignoring previous level's prefetches or not
+\textcolor{blue}{ - Talk about ignoring previous level's prefetches or
+  not
 % djimenez: you don't have to discuss every detail. that's what the code is for.
 }
 
-\noindent \textbf{Last Level Cache:}
-The LLC prefetcher is the basic next-line prefetcher. The prefetcher gets
-triggered on demand accesses and the prefetch accesses originating from the L1
-prefetcher.
+\noindent \textbf{Last Level Cache:} The LLC prefetcher is the basic
+next-line prefetcher. The prefetcher gets triggered on demand accesses
+and the prefetch accesses originating from the L1 prefetcher.
 
 \begin{table}[h]
 \begin{adjustwidth}{}{}
@@ -100,21 +103,29 @@ prefetcher.
 \subsection{Single-Core Complexity}
 \label{Config-Complex}
 
-Table~\ref{tab:PPF_overhead} \textcolor{blue}{(CURRENTLY INCOMPLETE)} shows a
-detailed analysis of the hardware overhead required to implement the three
-prefetchers. It is well within the championship budget of 64KB. In terms of
-L2C prefetcher's logical complexity, SPP is a cascade of three tables, with
-the output of one indexing into the next. Constructing the signature only
-requires simple operations like shifting and XOR. PPF requires parallel
-indexing into nine different tables and adding nine 5-bit integers, which is
-well within the complexity of currently implemented perceptron-based branch
+Table~\ref{tab:PPF_overhead} \textcolor{blue}{(CURRENTLY INCOMPLETE)}
+shows a detailed analysis of the hardware overhead required to
+implement the three prefetchers. It is well within the championship
+budget of 64KB. In terms of L2C prefetcher's logical complexity, SPP
+is a cascade of three tables, with the output of one indexing into the
+next. Constructing the signature only requires simple operations like
+shifting and XOR. PPF requires parallel indexing into nine different
+tables and adding nine 5-bit integers, which is well within the
+complexity of currently implemented perceptron-based branch
 predictors.  Weight updates are done only in steps of +1 or -1.
+\textcolor{red}{Do we want to max out the tables to use all the
+  available space?  If that gives us any benefit we should, we don't
+  get anything extra for being smaller than the required space right?}
+
 
 \subsection{Multi-Core Configuration}
 \label{Config-Multi}
 
-In multi-core, we are only using the L2C Prefetcher as described above. It was
-observed that the efficient filtering mechanism in PPF helps avoid pollution
-in the shared LLC. In terms of complexity, since multi-core implementation is
-a subset of our single-core implementation, it can easily be implemented
-within the championship rules.
+When in a multi-core configuration, we only using the L2C Prefetcher
+as described above. We observed that the efficient filtering mechanism
+in PPF helps avoid pollution in the shared LLC, while the other level
+prefetchers introduced some noise such that better performance is
+observed when they are turned off.  Thus, we leverage NUM_CPUs to
+disable the L1 and LLC prefetchers.  Regardless the overall overhead
+matches that of the single core arrangement and thus is within the
+championship rules.
