@@ -2,7 +2,9 @@
 \label{Config}
 
 This section describes the approach in putting together all the
-prefetching components across the cache hierarchies.
+prefetching components across the cache hierarchies. An overview
+of various prefetching components with respect to the cache hierarchy
+can be seen in Figure~\ref{fig:PPF_Hierarchy}
 
 \subsection{Single-Core Configuration}
 \label{Config-Single}
@@ -38,10 +40,10 @@ section~\ref{Enhancements}. Prefetches originating from the L2C can be
 placed in L2C or LLC, depending on the confidence estimate given by
 the perceptron sum.
 
-\textcolor{blue}{ - Talk about ignoring previous level's prefetches or
-  not
-% djimenez: you don't have to discuss every detail. that's what the code is for.
-}
+%% \textcolor{blue}{ - Talk about ignoring previous level's prefetches or
+%%   not
+%% % djimenez: you don't have to discuss every detail. that's what the code is for.
+%% }
 
 \noindent \textbf{Last Level Cache:} The LLC prefetcher is the basic
 next-line prefetcher. The prefetcher gets triggered on demand accesses
@@ -57,6 +59,15 @@ and the prefetch accesses originating from the L1 prefetcher.
         \textbf{Entry} &
         \textbf{Components} &
         \textbf{Total} \\
+    \hline
+	\multicolumn{4}{|c|}{\textbf{L1D Prefetcher}}	\\
+    \hline
+	\multirow{2}{1.5cm}{Throttler}	& 	\multirow{2}{0.7 cm}{1024} &	Tag (7 bits )	&  12288	\\
+					&				   &	Score (5 bits)	&  bits		\\
+    \hline
+	Pages Accessed			&	8			   & 	Page number (52 bits) 	& 416 bits	\\
+    \hline
+	\multicolumn{4}{|c|}{\textbf{L2C Prefetcher}}	\\
     \hline
                                             &  \multirow{5}{0.5cm}{256}    & Valid (1 bit)  &             \\
                                              &      & Tag (16 bits)        &  \multirow{2}{0.9cm}{11008}           \\
@@ -91,11 +102,13 @@ and the prefetch accesses originating from the L1 prefetcher.
         \multirow{2}{1.5cm}{~Trackers}              & 3     & $PC_2$ (12 bits)      & 36 bits   \\
                                                     &       & $PC_3$ (12 bits)      &           \\
     \hline
-        \multicolumn{4}{|c|}{\textbf{Total: 322,240 bits = 39.34 KB}}\\
+	Pages Accessed			&	8			   & 	Page number (52 bits) 	& 416 bits	\\
+    \hline
+        \multicolumn{4}{|c|}{\textbf{Total: 335,360 bits = 40.94 KB}}\\
     \hline
     \end{tabular}
     \end{adjustbox}
-    \caption{Prefetcher Storage Cost}
+    \caption{Single-core Prefetcher Hardware}
     \label{tab:PPF_overhead}
 \end{adjustwidth}
 \end{table}
@@ -103,7 +116,7 @@ and the prefetch accesses originating from the L1 prefetcher.
 \subsection{Single-Core Complexity}
 \label{Config-Complex}
 
-Table~\ref{tab:PPF_overhead} \textcolor{blue}{(CURRENTLY INCOMPLETE)}
+Table~\ref{tab:PPF_overhead}
 shows a detailed analysis of the hardware overhead required to
 implement the three prefetchers. It is well within the championship
 budget of 64KB. In terms of L2C prefetcher's logical complexity, SPP
@@ -113,10 +126,6 @@ shifting and XOR. PPF requires parallel indexing into nine different
 tables and adding nine 5-bit integers, which is well within the
 complexity of currently implemented perceptron-based branch
 predictors.  Weight updates are done only in steps of +1 or -1.
-\textcolor{red}{Do we want to max out the tables to use all the
-  available space?  If that gives us any benefit we should, we don't
-  get anything extra for being smaller than the required space right?}
-
 
 \subsection{Multi-Core Configuration}
 \label{Config-Multi}
@@ -125,7 +134,7 @@ When in a multi-core configuration, we only using the L2C Prefetcher
 as described above. We observed that the efficient filtering mechanism
 in PPF helps avoid pollution in the shared LLC, while the other level
 prefetchers introduced some noise such that better performance is
-observed when they are turned off.  Thus, we leverage NUM_CPUs to
+observed when they are turned off.  Thus, we leverage NUM\_CPUs to
 disable the L1 and LLC prefetchers.  Regardless the overall overhead
 matches that of the single core arrangement and thus is within the
 championship rules.
