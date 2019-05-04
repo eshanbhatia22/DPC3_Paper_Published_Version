@@ -1,16 +1,11 @@
+
 \section{Results}
 \label{Results}
-
-We test our implementation within in the guidelines of the championship, using the
-memory intensive simpoints from SPEC 2017 traces. For multi-core we developed 50
-random mixes and report the weighted speed normalized to the baseline [cite].
-
-Figure XX shows the single-core speedup obtained by our prefetchers for the traces 
-provided, followed by the the geomean speedup. All the results have
-been normalized to the baseline of no prefetching. For reference, we've compared
-our results with the L2C only BOP~\cite{BOP}, which was the winner of the 2nd DPC.
-Figure XX shows the multi-core results for our scheme and for BOP, with traces 
-arranged in the increasing order of speed-up obtained.
-
-As can be seen, our three prefetchers combined can give a speedup of 40.4\% and XX\%
-on single-core and multi-core systems respectively. This is 12\% and (XX-15.1)\% above BOP.
+We test our implementation in the guidelines of the championship, using the
+memory intensive simpoints from SPEC 2017 traces. Figure~\ref{fig:perf} shows 
+the single-core speedup obtained by our approach on the traces provided, 
+along with the the geomean speedup. 
+For reference, we've compared our results with the L2C only BOP~\cite{BOP}, 
+which was the winner of the 2nd DPC. Our prefetchers yield a speedup of 40.4\% 
+and XX\% on single-core and multi-core systems respectively. This is 12\% and 
+(XX-15.1)\% above BOP.

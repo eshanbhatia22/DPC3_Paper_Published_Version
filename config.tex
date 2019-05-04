@@ -30,29 +30,34 @@ The prefetcher continues to prefetch the next N consecutive lines of
 that page. N is obtained dynamically by sharing the Prefetch Queue
 (PQ) resources over consecutively active pages, as explained in
 Section~\ref{Enhancements-Misc}
-
 All the prefetch suggestions coming from the L1D prefetcher are placed
 in the L1D Cache.
 
 \noindent \textbf{2nd Level Cache:} For the L2C, we are using the
-enhanced SPP+PPF approach described in the
-section~\ref{Enhancements}. Prefetches originating from the L2C can be
-placed in L2C or LLC, depending on the confidence estimate given by
-the perceptron sum.
-
-%% \textcolor{blue}{ - Talk about ignoring previous level's prefetches or
-%%   not
-%% % djimenez: you don't have to discuss every detail. that's what the code is for.
-%% }
+enhanced SPP+PPF approach described in Section~\ref{Enhancements}. 
+Prefetches originating from the L2C can be placed in L2C or LLC, 
+depending on the confidence estimate given by the perceptron sum.
 
 \noindent \textbf{Last Level Cache:} The LLC prefetcher is the basic
-next-line prefetcher. The prefetcher gets triggered on demand accesses
-and the prefetch accesses originating from the L1 prefetcher.
+next-line prefetcher and does not incur any storage overhead. 
+The prefetcher gets triggered on demand accesses and the prefetch accesses 
+originating from the L1 prefetcher. 
+
+
+\begin{figure*}[h]
+  \begin{center}
+  \includegraphics[width=0.85\textwidth]{Performance}
+  \caption{Single Core Performance}
+  \label{fig:perf}
+  \end{center}
+\end{figure*}
+
+
 
 \begin{table}[h]
 \begin{adjustwidth}{}{}
     \centering
-    \begin{adjustbox}{width=0.8\columnwidth}
+    \begin{adjustbox}{width=0.72\columnwidth}
     \begin{tabular}{|c|c|c|c|}
     \hline
         \textbf{Structure} &
@@ -67,6 +72,8 @@ and the prefetch accesses originating from the L1 prefetcher.
     \hline
 	Pages Accessed			&	8			   & 	Page number (52 bits) 	& 416 bits	\\
     \hline
+        \multicolumn{4}{|c|}{\textbf{Overall L1D: 12,704 bits = 1.55 KBs}}\\
+    \hline
 	\multicolumn{4}{|c|}{\textbf{L2C Prefetcher}}	\\
     \hline
                                             &  \multirow{5}{0.5cm}{256}    & Valid (1 bit)  &             \\
@@ -75,7 +82,7 @@ and the prefetch accesses originating from the L1 prefetcher.
                                              &      & Signature (12 bits)  &             \\
                                              &      & LRU (6 bits)         &             \\
     \hline
-                                    &  \multirow{3}{0.5cm}{512}    & $C_{sig}$ (4bits)      &\multirow{2}{0.9cm}{24576}               \\
+                                    &  \multirow{3}{0.5cm}{2048}    & $C_{sig}$ (4 bits)      &\multirow{2}{0.9cm}{98304}               \\
                        Pattern Table         &   & $C_{delta}$ (4*4 bits) &  \multirow{2}{0.5cm}{bits}  \\
                                              &      & Delta (4*7 bits)       &               \\
     \hline
@@ -104,7 +111,9 @@ and the prefetch accesses originating from the L1 prefetcher.
     \hline
 	Pages Accessed			&	8			   & 	Page number (52 bits) 	& 416 bits	\\
     \hline
-        \multicolumn{4}{|c|}{\textbf{Total: 335,360 bits = 40.94 KB}}\\
+        \multicolumn{4}{|c|}{\textbf{Overall L2C: 396,384 bits = 48.39 KBs}}\\
+    \hline
+        \multicolumn{4}{|c|}{\textbf{Total: 409,088 bits = 49.94 KBs}}\\
     \hline
     \end{tabular}
     \end{adjustbox}
@@ -113,9 +122,7 @@ and the prefetch accesses originating from the L1 prefetcher.
 \end{adjustwidth}
 \end{table}
 
-\subsection{Single-Core Complexity}
-\label{Config-Complex}
-
+\noindent \textbf{Single-Core Complexity:}
 Table~\ref{tab:PPF_overhead}
 shows a detailed analysis of the hardware overhead required to
 implement the three prefetchers. It is well within the championship
@@ -127,14 +134,24 @@ tables and adding nine 5-bit integers, which is well within the
 complexity of currently implemented perceptron-based branch
 predictors.  Weight updates are done only in steps of +1 or -1.
 
+\section{Results}
+\label{Results}
+
+
 \subsection{Multi-Core Configuration}
 \label{Config-Multi}
 
-When in a multi-core configuration, we only using the L2C Prefetcher
-as described above. We observed that the efficient filtering mechanism
-in PPF helps avoid pollution in the shared LLC, while the other level
-prefetchers introduced some noise such that better performance is
-observed when they are turned off.  Thus, we leverage NUM\_CPUs to
-disable the L1 and LLC prefetchers.  Regardless the overall overhead
-matches that of the single core arrangement and thus is within the
-championship rules.
+When in a multi-core configuration, we disable the L1D Prefetcher, keep 
+the same L2C Prefetcher and switch the LLC prefetcher altogether to SPP, 
+without the enhanced PPF components.
+We do this by leveraging the information from NUM\_CPUS parameter.
+We observed that the efficient filtering mechanism in PPF helps avoid 
+pollution in the shared LLC and a further attempt to do aggressive
+prefetching leads to performance degradation.
+Hence we re-tune SPP's thresholds towards the safer side and this
+helps further boost the overall performance. 
+
+\noindent \textbf{Multi-Core Complexity:}
+Beside the single-core L2C prefetcher complexity, LLC SPP adds an overhead 
+of 14.44 KBs per core, making a total of 62.83 KBs per core, which is within 
+the budget allowed by the championship.
